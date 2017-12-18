@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Die Erlaubnis wurde nicht erteilt.", Toast.LENGTH_SHORT).show();
             }
-            return
+            return;
 
         }
 
