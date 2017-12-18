@@ -30,9 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PICK_PHOTO_INTENT = 1;
     private static final int REQUEST_CODE_PERMISSION_READ_EXTERNAL_STORAGE = 10;
+    private static final String KEY_PARCEABLE_PHOTO_URI = "key.parceable.photoUri";
 
     Button chooseButton;
     ImageView pictureFrame;
+    private Uri photoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,22 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_PARCEABLE_PHOTO_URI)) {
+                photoUri = savedInstanceState.getParcelable(KEY_PARCEABLE_PHOTO_URI);
+                displayUriAsBitmap(photoUri);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putParcelable(KEY_PARCEABLE_PHOTO_URI, photoUri);
+
+        super.onSaveInstanceState(outState);
+
     }
 
     private void requestStoragePermission() {
@@ -90,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
             );
         }
+
 
     }
 
@@ -164,23 +183,27 @@ public class MainActivity extends AppCompatActivity {
             }
             // Hier verarbeiten wir die Daten, wenn welche da sind ...
 
-            Uri photoUri = data.getData();
+            photoUri = data.getData();
             /*
             // setImageURI() läuft syncron ab. Wenn die Auswahl zu lange dauert, d.h. wenn der
             // UI-Thread länger als 5 sek geblockt ist, stürzt die App ab.
             pictureFrame.setImageURI(photoUri);
             */
-            try {
-                Bitmap bmp = MediaStore.Images.Media.getBitmap(
-                        this.getContentResolver(),  // Hier übergebn wir einen ContenResolver, der für das Laden verantwortlich ist
-                        photoUri                    // die Image URI
-                );
-                pictureFrame.setImageBitmap(bmp);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Das Laden hat nicht geklappt!", Toast.LENGTH_SHORT).show();
-            }
+            displayUriAsBitmap(photoUri);
 
+        }
+    }
+
+    private void displayUriAsBitmap(Uri uri) {
+        try {
+            Bitmap bmp = MediaStore.Images.Media.getBitmap(
+                    this.getContentResolver(),  // Hier übergebn wir einen ContenResolver, der für das Laden verantwortlich ist
+                    uri                    // die Image URI
+            );
+            pictureFrame.setImageBitmap(bmp);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Das Laden hat nicht geklappt!", Toast.LENGTH_SHORT).show();
         }
     }
 
